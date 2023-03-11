@@ -350,6 +350,9 @@ MigrationBackup/
 .ionide/
 
 .ipynb_checkpoints/
+
 **/.DS_Store
+
 data/
+
 .env
