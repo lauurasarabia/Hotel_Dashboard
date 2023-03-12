@@ -119,6 +119,7 @@ def create_calendar_table(start_date, end_date):
     df['month'] = df['date'].dt.month
     df['year'] = df['date'].dt.year
     df['weekday'] = df['date'].dt.day_name()
+    df['month_name'] = df['date'].dt.month_name()
     df['week'] = df['date'].dt.isocalendar().week
     return df
 
@@ -131,6 +132,18 @@ def rename_and_drop_reservations_columns(df):
     df.rename(columns={'room_id':'room_code'}, inplace=True)
     df.drop(['room_type_id', 'room_type_name'], axis=1, inplace=True)
     return df
+
+#Function 12
+def occupation(df):
+    total_rooms = 15
+    df['arrival'] = pd.to_datetime(df['arrival'])
+    df['departure'] = pd.to_datetime(df['departure'])
+    df['stay_duration'] = (df['departure'] - df['arrival']).dt.days
+    occupancy = pd.DataFrame(index=pd.date_range(start=df['arrival'].min(), end=df['departure'].max(), freq='D'))
+    for day in occupancy.index:
+        occupancy.loc[day, 'occupied_rooms'] = ((day >= df['arrival']) & (day < df['departure'])).sum()
+        occupancy['occupancy'] = occupancy['occupied_rooms'] / total_rooms
+    return occupancy
 
 
 
