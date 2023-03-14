@@ -2,6 +2,7 @@ import pandas as pd
 import seaborn as sns
 import datetime
 import math
+import numpy as np
 
 
 #Function 1
@@ -138,12 +139,33 @@ def occupation(df):
     total_rooms = 15
     df['arrival'] = pd.to_datetime(df['arrival'])
     df['departure'] = pd.to_datetime(df['departure'])
+
     df['stay_duration'] = (df['departure'] - df['arrival']).dt.days
+    daily_totals = df.groupby(df['arrival'].dt.date)['accommodation_amount'].sum()
+
     occupancy = pd.DataFrame(index=pd.date_range(start=df['arrival'].min(), end=df['departure'].max(), freq='D'))
     for day in occupancy.index:
-        occupancy.loc[day, 'occupied_rooms'] = ((day >= df['arrival']) & (day < df['departure'])).sum()
-        occupancy['occupancy'] = occupancy['occupied_rooms'] / total_rooms
+        occupancy.loc[day, 'occupied_rooms'] = ((day >= df['arrival']) & (day < df['departure']) & (df['status'] == 'CheckedOut')).sum()
+        occupancy['occupancy_rate'] = round(occupancy['occupied_rooms'] / total_rooms * 100, 2)
+        occupancy['available_rooms'] = 15 - occupancy['occupied_rooms'] 
+        occupancy['avg_daily_rate'] = round(daily_totals / occupancy['occupied_rooms'], 2)
+        occupancy['avg_daily_rate'] = occupancy['avg_daily_rate'].replace([np.inf, -np.inf], np.nan).fillna(0)
+        occupancy['RevPAR'] = round(daily_totals / occupancy['available_rooms'], 2)
+        occupancy['RevPAR'] = occupancy['RevPAR'].replace([np.inf, -np.inf], np.nan).fillna(0)
+
+    cancellations = pd.DataFrame(index=pd.date_range(start=df['arrival'].min(), end=df['departure'].max(), freq='D'))
+    for day in cancellations.index:
+        bookings_on_day = ((day >= df['arrival']) & (day < df['departure'])).sum()
+        if bookings_on_day > 0:
+            cancellations_on_day = ((day >= df['arrival']) & (day < df['departure']) & (df['status'] == 'Cancelled')).sum()
+            cancellations.loc[day, 'cancelled_bookings'] = cancellations_on_day
+            cancellations.loc[day, 'cancellation_percentage'] = round(cancellations_on_day / bookings_on_day * 100, 2)
+            
+    occupancy = occupancy.merge(cancellations, left_index=True, right_index=True)
+    occupancy['year'] = occupancy.index.year
+
     return occupancy
 
+#Function 13
 
 
