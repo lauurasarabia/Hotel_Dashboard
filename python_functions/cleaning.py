@@ -120,6 +120,7 @@ def create_calendar_table(start_date, end_date):
     df['month'] = df['date'].dt.month
     df['year'] = df['date'].dt.year
     df['weekday'] = df['date'].dt.day_name()
+    df['weekday_number'] = df['date'].dt.weekday
     df['month_name'] = df['date'].dt.month_name()
     df['week'] = df['date'].dt.isocalendar().week
     return df
@@ -135,7 +136,7 @@ def rename_and_drop_reservations_columns(df):
     return df
 
 #Function 12
-def occupation(df):
+def statistics_per_day(df):
     total_rooms = 15
     df['arrival'] = pd.to_datetime(df['arrival'])
     df['departure'] = pd.to_datetime(df['departure'])
@@ -143,15 +144,16 @@ def occupation(df):
     df['stay_duration'] = (df['departure'] - df['arrival']).dt.days
     daily_totals = df.groupby(df['arrival'].dt.date)['accommodation_amount'].sum()
 
-    occupancy = pd.DataFrame(index=pd.date_range(start=df['arrival'].min(), end=df['departure'].max(), freq='D'))
-    for day in occupancy.index:
-        occupancy.loc[day, 'occupied_rooms'] = ((day >= df['arrival']) & (day < df['departure']) & (df['status'] == 'CheckedOut')).sum()
-        occupancy['occupancy_rate'] = round(occupancy['occupied_rooms'] / total_rooms * 100, 2)
-        occupancy['available_rooms'] = 15 - occupancy['occupied_rooms'] 
-        occupancy['avg_daily_rate'] = round(daily_totals / occupancy['occupied_rooms'], 2)
-        occupancy['avg_daily_rate'] = occupancy['avg_daily_rate'].replace([np.inf, -np.inf], np.nan).fillna(0)
-        occupancy['RevPAR'] = round(daily_totals / occupancy['available_rooms'], 2)
-        occupancy['RevPAR'] = occupancy['RevPAR'].replace([np.inf, -np.inf], np.nan).fillna(0)
+    statistics_per_day = pd.DataFrame(index=pd.date_range(start=df['arrival'].min(), end=df['departure'].max(), freq='D'))
+    
+    for day in statistics_per_day.index:
+        statistics_per_day.loc[day, 'occupied_rooms'] = ((day >= df['arrival']) & (day < df['departure']) & (df['status'] == 'CheckedOut')).sum()
+        statistics_per_day['occupancy_rate'] = round(statistics_per_day['occupied_rooms'] / total_rooms * 100, 2)
+        statistics_per_day['available_rooms'] = 15 - statistics_per_day['occupied_rooms'] 
+        statistics_per_day['avg_daily_rate'] = round(daily_totals / statistics_per_day['occupied_rooms'], 2)
+        statistics_per_day['avg_daily_rate'] = statistics_per_day['avg_daily_rate'].replace([np.inf, -np.inf], np.nan).fillna(0)
+        statistics_per_day['RevPAR'] = round(daily_totals / statistics_per_day['available_rooms'], 2)
+        statistics_per_day['RevPAR'] = statistics_per_day['RevPAR'].replace([np.inf, -np.inf], np.nan).fillna(0)
 
     cancellations = pd.DataFrame(index=pd.date_range(start=df['arrival'].min(), end=df['departure'].max(), freq='D'))
     for day in cancellations.index:
@@ -161,11 +163,175 @@ def occupation(df):
             cancellations.loc[day, 'cancelled_bookings'] = cancellations_on_day
             cancellations.loc[day, 'cancellation_percentage'] = round(cancellations_on_day / bookings_on_day * 100, 2)
             
-    occupancy = occupancy.merge(cancellations, left_index=True, right_index=True)
-    occupancy['year'] = occupancy.index.year
+    statistics_per_day = statistics_per_day.merge(cancellations, left_index=True, right_index=True)
+    statistics_per_day['year'] = statistics_per_day.index.year
+    statistics_per_day['month'] = statistics_per_day.index.month
 
-    return occupancy
+    return statistics_per_day
 
 #Function 13
+def summarize_amount_year(df, occupancy):
+    
+    # Convert "arrival" column to a datetime type
+    df['arrival'] = pd.to_datetime(df['arrival'])
+    
+    # Create new columns for year
+    sales_year = pd.DataFrame(index=pd.date_range(start=df['arrival'].min(), end=df['departure'].max(), freq='Y'))
+    for year in sales_year.index:
+        sales_year.loc[year, 'year'] = year.year
+        sales_year.loc[year, 'total_amount_year'] = df[df['arrival'].dt.year == year.year]['total_amount'].sum()
+        sales_year.loc[year, 'board_amount_year'] = df[df['arrival'].dt.year == year.year]['board_amount'].sum()
+        sales_year.loc[year, 'service_amount_year'] = df[df['arrival'].dt.year == year.year]['service_amount'].sum()
+        sales_year.loc[year, 'accommodation_amount_year'] = df[df['arrival'].dt.year == year.year]['accommodation_amount'].sum()
+        
+        occupancy['year'] = pd.to_datetime(occupancy['year'], format='%Y')
+        occupancy_year = occupancy[occupancy['year'].dt.year == year.year]
+        sales_year.loc[year, 'RevPAR'] = occupancy_year['RevPAR'].mean()
+        sales_year.loc[year, 'avg_daily_rate'] = occupancy_year['avg_daily_rate'].mean()
+
+    # Convert "year" column to int
+    sales_year['year'] = pd.to_numeric(sales_year['year']).astype('Int64')
+    
+    return sales_year
+
+
+#Function 14
+def occupancy_table(df):
+    df['arrival'] = pd.to_datetime(df['arrival'])
+    df['departure'] = pd.to_datetime(df['departure'])
+    occupancy_2 = pd.concat([pd.DataFrame({'date': pd.date_range(start=row['arrival'], end=row['departure'], freq='D'),
+                                           'reservation_id': row['reservation_id'],
+                                           'country_code': row['country_code'],
+                                           'status': row['status'],
+                                           'board': row['board'],
+                                           'room_code': row['room_code'],
+                                           'adult': row['adult'],
+                                           'booker_name': row['booker_name'], 
+                                           'nights': row['nights']}) 
+                             for i, row in df.iterrows()], ignore_index=True)
+    return occupancy_2
+
+
+
+import matplotlib.pyplot as plt 
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, fbeta_score, confusion_matrix
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.svm import SVR
+from sklearn import metrics
+from sys import platform
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.linear_model import Ridge, Lasso
+from sklearn.linear_model import SGDRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.svm import SVR
+
+
+#Function 15
+def merging_tables(occupancy_df, reservations):
+    reservations['arrival'] = pd.to_datetime(reservations['arrival'])
+    reservations['departure'] = pd.to_datetime(reservations['departure'])
+    
+    # Merge reservations dataframe to get amount information
+    occupancy_df = occupancy_df.merge(reservations[['reservation_id', 'total_amount', 'service_amount', 'board_amount', 'accommodation_amount', 'nights']], 
+                  on='reservation_id', how='left')
+    
+    # Divide the amount columns by nights to get the amount per night
+    occupancy_df['total_amount_per_night'] = occupancy_df['total_amount'] / occupancy_df['nights_x']
+    occupancy_df['service_amount_per_night'] = occupancy_df['service_amount'] / occupancy_df['nights_x']
+    occupancy_df['board_amount_per_night'] = occupancy_df['board_amount'] / occupancy_df['nights_x']
+    occupancy_df['accommodation_amount_per_night'] = occupancy_df['accommodation_amount'] / occupancy_df['nights_x']
+
+    # localize the last row for each reservation and set the last row's amount columns to zero
+    last_row = occupancy_df.groupby('reservation_id').tail(1).index
+    occupancy_df.loc[last_row, ['total_amount_per_night', 'service_amount_per_night', 'board_amount_per_night', 'accommodation_amount_per_night']] = 0
+    
+    return occupancy_df
+
+#Function 16
+def merging_df_roomcode(df1, df2):
+    df1.set_index(['room_code'])
+    df2.set_index(['room_code'])
+    df = pd.merge(df1, df2, on='room_code', how='outer') 
+    return df
+
+#Function 17
+def getting_ready_for_predicting(df):
+    df.rename(columns={'nights_x':'nights'}, inplace=True)
+    df.drop(['total_amount_per_night', 'service_amount_per_night', 'board_amount_per_night', 'room_type_name'], axis=1, inplace=True)
+    df['room_code'].replace({'NOT_ASSIGNED': '0'}, inplace=True)
+    df['room_type'].replace({'NOT_ASSIGNED': '0'}, inplace=True)
+    return df
+
+#Function 18
+def label_board(x):
+    if 'BB' in x:
+        return 1
+    elif 'RO' in x:
+        return 2
+
+#Function 19
+def label_booker_name(x):
+    if 'WEBSITE' in x:
+        return 1
+    elif 'BOOKING' in x:
+        return 2
+    elif 'OTHER' in x:
+        return 3
+    elif 'EXPEDIA' in x: 
+        return 4
+    elif 'HOTELBEDS' in x:
+        return 5
+
+#Function 20
+def calculate_opening_days(df):
+    # Group reservations by date
+    reservations_by_date = df.groupby('date')
+
+    # Initialize a dictionary to store whether the hotel was open on each date
+    opening_days = {}
+
+    # Iterate over each date and check if at least one reservation had status "CheckedOut"
+    for date, reservations in reservations_by_date:
+        if (reservations['status'] == 'CheckedOut').any():
+            opening_days[date] = 1
+        elif (reservations['status'] == 'Cancelled').all():
+            opening_days[date] = 0
+
+    # Convert the opening_days dictionary to a DataFrame with a "date" and "opened" column
+    opening_days_df = pd.DataFrame.from_dict({'date': list(opening_days.keys()), 'opened': list(opening_days.values())})
+
+    # Merge the opening_days DataFrame with the original DataFrame on the "date" column
+    df_with_opening_days = pd.merge(df, opening_days_df, on='date')
+
+    return df_with_opening_days
+
+ 
+#Function 21
+def label_status(x):
+    if 'CheckedOut' in x:
+        return 1
+    elif 'Cancelled' in x:
+        return 2
+    
+
+#Function 22
+def drop_zero_rows(df):
+    return df[df['accommodation_amount_per_night'] != 0]
+
+
+
+
+
+
+
+
+
+
+
 
 
