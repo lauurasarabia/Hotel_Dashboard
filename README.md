@@ -1,6 +1,6 @@
 # IRONHACK FINAL PROJECT
 ## Hotel Dashboard Analysis
-These last years are really interesting for analyzing a business performance as the environment has changed a lot. For this reason, my final project is a business analysis of a hotel located in Spain. 
+These last years are really interesting for analyzing a business performance as the environment has significantly changed. For this reason, my final project is a business analysis of a hotel located in Spain. 
 The period I decided to collect the data is from 2019 to 2022.
 
 ### Extraction
@@ -20,7 +20,7 @@ At the end of this process I created the following tables:
 - ***Rooms:*** room_code, room_type, room_type_name.
 - ***Continents:*** country, country_code, alpha-3, continent.
 - ***Calendar:*** date, day, month, year, weekday, weekday_number, month_name, week.
-- ***Occupancy:***date, reservation_id, country_code, status, board, room_code, adult, booker_name, nights. 
+- ***Occupancy:*** date, reservation_id, country_code, status, board, room_code, adult, booker_name, nights. 
 
 
 ### Features
