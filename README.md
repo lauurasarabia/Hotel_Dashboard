@@ -1,4 +1,6 @@
-# IRONHACK FINAL PROJECT - Hotel Analysis / Dashboard
+# Hotel Analysis / Dashboard
+## IRONHACK FINAL PROJECT
+
 These last years are really interesting for analyzing a business performance as the environment has significantly changed. For this reason, my final project is a business analysis of a hotel located in Spain. 
 The period I decided to collect the data is from 2019 to 2022. I have chosen this period because I wanted to know how the origin of the guests that receive this specific hotel changed through these years and how it affected to their income.
 
