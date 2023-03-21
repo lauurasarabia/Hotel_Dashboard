@@ -29,35 +29,35 @@ I imported all the csv files and created relations between all these tables in o
 #### Overview
 This page is showing an overview of the data in terms of general income, total rooms, opening days... and all the data and useful measures to know the status of the hotel filtering by the period of time you decide.
 
-[OverviewGIF] = (https://github.com/lauurasarabia/Hotel_Dashboard/blob/main/images/GIF_Overview.gif?raw=true)
+![OverviewGIF](https://github.com/lauurasarabia/Hotel_Dashboard/blob/main/images/GIF_Overview.gif?raw=true)
 
 
 #### Customer Origin -> Map
 In this map, you as a user, have the possibility to filter by continent (or country if you need to be more specific) and year (and/or month) in order to see how the provenience of your guests has changed during these past years and which is the amount they have provided you. 
 
-[MapGIF] = (https://github.com/lauurasarabia/Hotel_Dashboard/blob/main/images/GIF_Map.gif?raw=true)
+![MapGIF](https://github.com/lauurasarabia/Hotel_Dashboard/blob/main/images/GIF_Map.gif?raw=true)
 
 #### KPI
 KPIs are important because they give you the key to compare against your current performance. KPIs clearly illustrate if you really are reaching your goals. Implementing them in your company means you can set goals, you can set a strategy to reach your goals, and above all, you can evaluate your performance along the way. 
 For that reason, I have built this KPI page in which the user can find a detail of how is the performance going. If it is not going well, he may find the reason why in this page. 
 
-[KPIGIF] = (https://github.com/lauurasarabia/Hotel_Dashboard/blob/main/images/GIF_KPI.gif?raw=true)
+![KPIGIF](https://github.com/lauurasarabia/Hotel_Dashboard/blob/main/images/GIF_KPI.gif?raw=true)
 
 #### Rooms
 It shows different KPIs in relation to the type of room and the accommodation amount divided also by type of room. 
 
 
-[Rooms] = (https://github.com/lauurasarabia/Hotel_Dashboard/blob/main/images/Screenshot_rooms.png?raw=true)
+![Rooms](https://github.com/lauurasarabia/Hotel_Dashboard/blob/main/images/Screenshot_rooms.png?raw=true)
 
 #### Occupancy vs Cancellation
 I have decided to create this page so as to be able to see the difference between the occupancy rate and cancellation rate in these last 4 years, as from my point of view, it is really important to analyze how the market has changed because of external matters and how the hotel has confront this. 
 
-[Occupancyvscancellation] = (https://github.com/lauurasarabia/Hotel_Dashboard/blob/main/images/Screenshot_occupancy_cancel.png?raw=true)
+![Occupancyvscancellation](https://github.com/lauurasarabia/Hotel_Dashboard/blob/main/images/Screenshot_occupancy_cancel.png?raw=true)
 
 #### Prediction
 In this last page, I created a visualization in relation to the occupancy rate prediction for the following 6 months. I have done this prediction in Python using Gradient Boosting, a machine learning model technique. 
 
-[Prediction] = (https://github.com/lauurasarabia/Hotel_Dashboard/blob/main/images/GIF_prediction.gif?raw=true)
+![Prediction](https://github.com/lauurasarabia/Hotel_Dashboard/blob/main/images/GIF_prediction.gif?raw=true)
 
 
 ### Features
