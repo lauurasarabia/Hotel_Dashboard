@@ -349,7 +349,7 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
+./images/
 images/
 .ipynb_checkpoints/
-**/.DS_Store
 data/
