@@ -355,6 +355,8 @@ MigrationBackup/
 
 data/
 
+images/
+
 .env
 
 .DS_Store
