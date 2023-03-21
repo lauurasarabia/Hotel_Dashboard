@@ -17,11 +17,11 @@ I created a unique table called 'reservations' in which I concatenated the whole
 After that, I could detect some outliers and anomalies which I could fix properly so as to not impact unfavourably to the data.
 
 At the end of this process I had the following tables:
-- ***Reservations:*** reservation_id, country_code, arrival, departure, accommodation_amount, board_amount, service_amount, total_amount, status, board, room_id, room_type_id, room_type_name, adult, booker_name, nights.
-- ***Rooms:*** room_code, room_type, room_type_name.
-- ***Continents:*** country, country_code, alpha-3, continent.
-- ***Calendar:*** date, day, month, year, weekday, weekday_number, month_name, week.
-- ***Occupancy:*** date, reservation_id, country_code, status, board, room_code, adult, booker_name, nights. 
+- **Reservations:** reservation_id, country_code, arrival, departure, accommodation_amount, board_amount, service_amount, total_amount, status, board, room_id, room_type_id, room_type_name, adult, booker_name, nights.
+- **Rooms:** room_code, room_type, room_type_name.
+- **Continents:** country, country_code, alpha-3, continent.
+- **Calendar:** date, day, month, year, weekday, weekday_number, month_name, week.
+- **Occupancy:** date, reservation_id, country_code, status, board, room_code, adult, booker_name, nights. 
 
 ### Power BI
 I imported all the csv files and created relations between all these tables in order to be able to filter the information as easy as I could and started creating my dashboard. 
